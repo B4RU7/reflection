@@ -19,15 +19,15 @@ public class TestSkeletonFactory {
     private MessageManager messageManager;
     private NetworkAddress myAddress;
 
-    @Before
-    public void setup() {
-        testImplementation = new TestImplementation();
-        skeleton = (Skeleton) SkeletonFactory.createSkeleton(testImplementation);
-        messageManager = new MessageManager();
-        myAddress = messageManager.getMyAddress();
-    }
+//    @Before
+//    public void setup() {
+//        testImplementation = new TestImplementation();
+//        skeleton = (Skeleton) SkeletonFactory.createSkeleton(testImplementation);
+//        messageManager = new MessageManager();
+//        myAddress = messageManager.getMyAddress();
+//    }
 
-    @Test
+    /*@Test
     public void testCreateSkeletonWithValidAddress() {
         assertNotNull(skeleton);
         NetworkAddress address = skeleton.getAddress();
@@ -300,5 +300,5 @@ public class TestSkeletonFactory {
         assertEquals("-489", reply.getParameter("result.age"));
         assertEquals("U", reply.getParameter("result.gender"));
         assertEquals("true", reply.getParameter("result.deleted"));
-    }
+    }*/
 }

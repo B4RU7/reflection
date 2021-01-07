@@ -28,7 +28,7 @@ public class TestStubFactory {
         TestInterface stub = (TestInterface) StubFactory.createStub(TestInterface.class, "127.0.0.1", port);
         stub.testMethod1();
     }
-
+    /*
     @Test
     public void testCreateClassFromOtherInterface() {
         TestInterface3 stub = (TestInterface3) StubFactory.createStub(TestInterface3.class, "127.0.0.1", port);
@@ -276,5 +276,5 @@ public class TestStubFactory {
         assertEquals('r', result.getGender());
         assertEquals(123, result.getAge());
         assertTrue(result.isDeleted());
-    }
+    }*/
 }
