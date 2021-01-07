@@ -28,7 +28,7 @@ public class TestStubFactory {
         TestInterface stub = (TestInterface) StubFactory.createStub(TestInterface.class, "127.0.0.1", port);
         stub.testMethod1();
     }
-    /*
+
     @Test
     public void testCreateClassFromOtherInterface() {
         TestInterface3 stub = (TestInterface3) StubFactory.createStub(TestInterface3.class, "127.0.0.1", port);
@@ -39,7 +39,7 @@ public class TestStubFactory {
     public void testCreateStubFromObject() {
         StubFactory.createStub(TestObject.class, "127.0.0.1", port);
     }
-
+/*
     @Test
     public void testCreateClassWithDerivedInterface() {
         TestInterface stub = (TestInterface) StubFactory.createStub(TestInterface2.class, "127.0.0.1", port);
