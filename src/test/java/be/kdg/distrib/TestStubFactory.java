@@ -241,7 +241,7 @@ public class TestStubFactory {
         assertEquals(534, test.getAge());
         assertFalse(test.isDeleted());
     }
-/*
+
     @Test
     public void testWithObjectReturnValue3() {
         testSkeleton.sendObjectReturnValue(3);
@@ -276,5 +276,5 @@ public class TestStubFactory {
         assertEquals('r', result.getGender());
         assertEquals(123, result.getAge());
         assertTrue(result.isDeleted());
-    }*/
+    }
 }
