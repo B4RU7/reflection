@@ -60,7 +60,7 @@ public class TestStubFactory {
         MethodCallMessage message = testSkeleton.getMessage();
         assertEquals("testMethod1", message.getMethodName());
     }
-/*
+
     @Test(timeout = 1000)
     public void testWithOneParam() {
         TestInterface stub = (TestInterface) StubFactory.createStub(TestInterface.class, "127.0.0.1", port);
@@ -112,7 +112,7 @@ public class TestStubFactory {
         assertEquals("k", message.getParameter("arg0.gender"));
         assertEquals("false", message.getParameter("arg0.deleted"));
     }
-
+/*
     @Test(timeout = 1000)
     public void testWithObjectParams2() {
         TestInterface stub = (TestInterface) StubFactory.createStub(TestInterface.class, "127.0.0.1", port);
