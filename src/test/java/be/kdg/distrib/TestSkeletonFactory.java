@@ -19,15 +19,15 @@ public class TestSkeletonFactory {
     private MessageManager messageManager;
     private NetworkAddress myAddress;
 
-//    @Before
-//    public void setup() {
-//        testImplementation = new TestImplementation();
-//        skeleton = (Skeleton) SkeletonFactory.createSkeleton(testImplementation);
-//        messageManager = new MessageManager();
-//        myAddress = messageManager.getMyAddress();
-//    }
+    @Before
+    public void setup() {
+        testImplementation = new TestImplementation();
+        skeleton = (Skeleton) SkeletonFactory.createSkeleton(testImplementation);
+        messageManager = new MessageManager();
+        myAddress = messageManager.getMyAddress();
+    }
 
-    /*@Test
+    @Test
     public void testCreateSkeletonWithValidAddress() {
         assertNotNull(skeleton);
         NetworkAddress address = skeleton.getAddress();
@@ -45,7 +45,7 @@ public class TestSkeletonFactory {
         skeleton.handleRequest(message);
         assertEquals("void", testImplementation.getS());
     }
-
+/*
     @Test(expected = RuntimeException.class)
     public void testWrongMethodName() {
         MethodCallMessage message = new MethodCallMessage(myAddress, "nonExistingMethodName");
