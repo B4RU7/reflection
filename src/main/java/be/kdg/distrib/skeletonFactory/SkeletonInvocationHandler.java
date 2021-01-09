@@ -7,7 +7,9 @@ import be.kdg.distrib.communication.NetworkAddress;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 
 public class SkeletonInvocationHandler implements InvocationHandler{
     private final MessageManager messageManager;
@@ -54,34 +56,37 @@ public class SkeletonInvocationHandler implements InvocationHandler{
         for (String key : message.getParameters().keySet()) {
             paramNames.add(key);
         }
-        for (Method m : c.getClass().getDeclaredMethods()) {
-            m.setAccessible(true);
-            if (m.getName().equals(methodName)){
-                if (paramNames.size() == m.getParameterCount()){
-                    Object[] arguments = new Object[paramNames.size()];
-                    Class[] clazzes = m.getParameterTypes();
-                    for (int i = 0; i < paramNames.size(); i++) {
-                        Class clazz = clazzes[i];
-                        switch (clazz.getSimpleName()){
-                           // case ""
+        Optional<Method> method = Arrays.stream(c.getClass().getDeclaredMethods()).filter(e -> e.getName().equals(methodName)).findFirst();
+        if (method.isPresent()){
+            for (Method m : c.getClass().getDeclaredMethods()) {
+                m.setAccessible(true);
+                if (m.getName().equals(methodName)){
+                    if (paramNames.size() == m.getParameterCount()){
+                        Object[] arguments = new Object[paramNames.size()];
+                        Class[] clazzes = m.getParameterTypes();
+                        for (int i = 0; i < paramNames.size(); i++) {
+                            Class clazz = clazzes[i];
+                            switch (clazz.getSimpleName()){
+                                // case ""
+                            }
                         }
+                        Object toReturn = m.invoke(c, arguments);
+                        Class clazz = m.getReturnType();
+                        MethodCallMessage reply = new MethodCallMessage(messageManager.getMyAddress(), methodName);
+                        if ("void".equals(clazz.getSimpleName())) {
+                            reply.setParameter("result", "Ok");
+                        } else if (clazz.isPrimitive() || clazz == String.class) {
+                            reply.setParameter("result", toReturn.toString());
+                        }
+                        messageManager.send(reply, message.getOriginator());
+                    } else {
+                        throw new RuntimeException("Error in parameters!");
                     }
-                    Object toReturn = m.invoke(c, arguments);
-                    Class clazz = m.getReturnType();
-                    MethodCallMessage reply = new MethodCallMessage(messageManager.getMyAddress(), methodName);
-                    if ("void".equals(clazz.getSimpleName())) {
-                        reply.setParameter("result", "Ok");
-                    } else if (clazz.isPrimitive() || clazz == String.class) {
-                        reply.setParameter("result", toReturn.toString());
-                    }
-                    messageManager.send(reply, message.getOriginator());
-                } else {
-                    throw new RuntimeException("Error in parameters!");
                 }
-            } else {
-         //       throw new RuntimeException("Method " + m.getName() + " doesn't exist!");
             }
-
+        } else {
+            throw new RuntimeException("Method " + method.get().getName() + " doesn't exist!");
         }
+
     }
 }

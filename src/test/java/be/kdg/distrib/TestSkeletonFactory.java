@@ -60,7 +60,7 @@ public class TestSkeletonFactory {
         assertNotNull(reply.getParameter("result"));
         assertEquals("Ok", reply.getParameter("result"));
     }
-/*
+
     private interface MyLambda {
         boolean operator();
     }
@@ -111,7 +111,7 @@ public class TestSkeletonFactory {
         message.setParameter("arg0", "bla");
         skeleton.handleRequest(message);
     }
-
+/*
     @Test(timeout = 1000)
     public void testMethodWithParam() {
         MethodCallMessage message = new MethodCallMessage(myAddress, "testMethod2");
