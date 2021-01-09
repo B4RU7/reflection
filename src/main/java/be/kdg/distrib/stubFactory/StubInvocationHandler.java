@@ -52,14 +52,25 @@ public class StubInvocationHandler implements InvocationHandler {
                 argCounter++;
             }
         }
-
-
-//        for (Object arg : args) {
-//            System.out.println("\targ" + + argCounter + " = " + arg);
-//            message.setParameter("arg" + argCounter,arg.toString());
-//            argCounter++;
-//        }
         messageManager.send(message,networkAddress);
-        return null;
+        MethodCallMessage reply = messageManager.wReceive();
+        if (method.getReturnType().toString().equals("void")){
+            if (reply.getParameter("result").equals("Ok")){
+                return null;
+            } else {
+                return reply.getParameter("result");
+            }
+        } else if (method.getReturnType().toString().equals("String")){
+            return reply.getParameter("result");
+        } else if (method.getReturnType().toString().equals("char")){
+            return reply.getParameter("result").charAt(0);
+        } else if (method.getReturnType().toString().equals("boolean")){
+            boolean b = false;
+            if (reply.getParameter("result").equals("true"))
+                b = true;
+            return b;
+        } else {
+           return Integer.parseInt(reply.getParameter("result"));
+        }
     }
 }
