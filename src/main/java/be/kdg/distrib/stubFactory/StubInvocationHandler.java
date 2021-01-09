@@ -54,23 +54,50 @@ public class StubInvocationHandler implements InvocationHandler {
         }
         messageManager.send(message,networkAddress);
         MethodCallMessage reply = messageManager.wReceive();
-        if (method.getReturnType().toString().equals("void")){
+        if (method.getReturnType().getSimpleName().equals("void")){
             if (reply.getParameter("result").equals("Ok")){
                 return null;
             } else {
-                return reply.getParameter("result");
+                System.out.println("");
             }
         } else if (method.getReturnType().toString().equals("String")){
             return reply.getParameter("result");
         } else if (method.getReturnType().toString().equals("char")){
             return reply.getParameter("result").charAt(0);
         } else if (method.getReturnType().toString().equals("boolean")){
-            boolean b = false;
-            if (reply.getParameter("result").equals("true"))
-                b = true;
-            return b;
-        } else {
+            return Boolean.parseBoolean(reply.getParameter("result"));
+        } else if (method.getReturnType().toString().equals("int")) {
            return Integer.parseInt(reply.getParameter("result"));
+        } else {
+            Object object = method.getReturnType().getDeclaredConstructor().newInstance();
+            for (Field field :
+                    method.getReturnType().getDeclaredFields()) {
+                field.setAccessible(true);
+                parsePrimitiveType(field,reply,object);
+            }
+            return object;
+        }
+        throw new RuntimeException();
+    }
+
+    public void parsePrimitiveType(Field field,MethodCallMessage reply, Object object) throws IllegalAccessException {
+        switch (field.getType().getSimpleName()){
+            case "String": {
+                field.set(object,reply.getParameter("result." + field.getName()));
+                break;
+            }
+            case "char": {
+                field.set(object,reply.getParameter("result." + field.getName()).charAt(0));
+                break;
+            }
+            case "int": {
+                field.set(object,Integer.parseInt(reply.getParameter("result." + field.getName())));
+                break;
+            }
+            case "boolean": {
+                field.set(object,Boolean.parseBoolean(reply.getParameter("result." + field.getName())));
+                break;
+            }
         }
     }
 }
