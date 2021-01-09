@@ -45,7 +45,7 @@ public class TestSkeletonFactory {
         skeleton.handleRequest(message);
         assertEquals("void", testImplementation.getS());
     }
-/*
+
     @Test(expected = RuntimeException.class)
     public void testWrongMethodName() {
         MethodCallMessage message = new MethodCallMessage(myAddress, "nonExistingMethodName");
@@ -60,7 +60,7 @@ public class TestSkeletonFactory {
         assertNotNull(reply.getParameter("result"));
         assertEquals("Ok", reply.getParameter("result"));
     }
-
+/*
     private interface MyLambda {
         boolean operator();
     }
