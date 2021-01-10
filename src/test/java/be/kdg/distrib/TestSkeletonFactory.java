@@ -179,7 +179,7 @@ public class TestSkeletonFactory {
         MethodCallMessage reply = messageManager.wReceive();
         assertEquals("Ok", reply.getParameter("result"));
     }
-/*
+
     @Test(timeout = 1000)
     public void testObjectAsParameter2() {
         MethodCallMessage message = new MethodCallMessage(myAddress, "testMethod12");
@@ -218,7 +218,7 @@ public class TestSkeletonFactory {
         MethodCallMessage reply = messageManager.wReceive();
         assertEquals("100", reply.getParameter("result"));
     }
-
+/*
     @Test(timeout = 1000)
     public void testIntReturnValue2() {
         testImplementation.setMethod6ReturnValue(10000);

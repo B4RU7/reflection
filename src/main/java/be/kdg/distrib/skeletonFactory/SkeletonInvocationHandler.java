@@ -27,7 +27,7 @@ public class SkeletonInvocationHandler implements InvocationHandler{
         if ("run".equals(method.getName())) {
             new Thread(this::run).start();
         } else if ("getAddress".equals(method.getName())) {
-            return messageManager.getMyAddress();
+            return networkAddress;
         } else if ("handleRequest".equals(method.getName())) {
             handleRequest((MethodCallMessage) args[0]);
         }
@@ -41,7 +41,7 @@ public class SkeletonInvocationHandler implements InvocationHandler{
                 request = messageManager.wReceive();
                 handleRequest(request);
             } catch (Exception e) {
-                MethodCallMessage reply = new MethodCallMessage(messageManager.getMyAddress(), "result");
+                MethodCallMessage reply = new MethodCallMessage(networkAddress, "result");
                 reply.setParameter("NotOk", e.getMessage());
                 assert request != null;
                 messageManager.send(reply, request.getOriginator());
@@ -51,10 +51,7 @@ public class SkeletonInvocationHandler implements InvocationHandler{
 
     public void handleRequest(MethodCallMessage message) throws Exception {
         String methodName = message.getMethodName();
-        //arg0
-        //arg0.name
-        //arg0.address
-        List<String> paramNames = new ArrayList<>();
+        Set<String> paramNames = new HashSet<>();
         for (String key : message.getParameters().keySet()) {
             if (!key.startsWith("arg")){
                 throw new RuntimeException("Parameter name must start with 'arg'!");
@@ -93,23 +90,54 @@ public class SkeletonInvocationHandler implements InvocationHandler{
                             arguments[i] = message.getParameter("arg" + i).charAt(0);
                             break;
                         }
+                        default: {
+                            Object object = clazz.getDeclaredConstructor().newInstance();
+                            for (Field field : clazz.getDeclaredFields()) {
+                                field.setAccessible(true);
+                                switch (field.getType().getSimpleName()) {
+                                    case "String": {
+                                        field.set(object, message.getParameter("arg" + i + "." + field.getName()));
+                                        break;
+                                    }
+                                    case "char": {
+                                        field.set(object, message.getParameter("arg" + i + "." + field.getName()).charAt(0));
+                                        break;
+                                    }
+                                    case "boolean": {
+                                        field.set(object, Boolean.parseBoolean(message.getParameter("arg" + i + "." + field.getName())));
+                                        break;
+                                    }
+                                    case "int": {
+                                        field.set(object, Integer.parseInt(message.getParameter("arg" + i + "." + field.getName())));
+                                        break;
+                                    }
+                                }
+                                arguments[i] = object;
+                            }
+                        }
                     }
                 }
-
                 Object toReturn = method.get().invoke(c, arguments);
                 Class clazz = method.get().getReturnType();
-                MethodCallMessage reply = new MethodCallMessage(messageManager.getMyAddress(), methodName);
+                MethodCallMessage reply = new MethodCallMessage(networkAddress, methodName);
                 if ("void".equals(clazz.getSimpleName())) {
                     reply.setParameter("result", "Ok");
                 } else if (clazz.isPrimitive() || clazz == String.class) {
                     reply.setParameter("result", toReturn.toString());
+                } else {
+                    for (Field field : clazz.getDeclaredFields()
+                    ) {
+                        field.setAccessible(true);
+                        if (field.getType().isPrimitive() || field.getType() == String.class) {
+                            reply.setParameter("result" + "." + field.getName(), field.get(toReturn).toString());
+                        }
+                    }
                 }
                 messageManager.send(reply, message.getOriginator());
             } else {
-                throw new RuntimeException("Expected: ");
+                throw new RuntimeException("Error in param!");
             }
         } else {
-            //Niet ok
             throw new RuntimeException("Method not found");
         }
 
