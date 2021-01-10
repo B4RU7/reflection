@@ -111,7 +111,7 @@ public class TestSkeletonFactory {
         message.setParameter("arg0", "bla");
         skeleton.handleRequest(message);
     }
-/*
+
     @Test(timeout = 1000)
     public void testMethodWithParam() {
         MethodCallMessage message = new MethodCallMessage(myAddress, "testMethod2");
@@ -179,7 +179,7 @@ public class TestSkeletonFactory {
         MethodCallMessage reply = messageManager.wReceive();
         assertEquals("Ok", reply.getParameter("result"));
     }
-
+/*
     @Test(timeout = 1000)
     public void testObjectAsParameter2() {
         MethodCallMessage message = new MethodCallMessage(myAddress, "testMethod12");

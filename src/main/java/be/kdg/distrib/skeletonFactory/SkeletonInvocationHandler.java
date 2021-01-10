@@ -4,12 +4,11 @@ import be.kdg.distrib.communication.MessageManager;
 import be.kdg.distrib.communication.MethodCallMessage;
 import be.kdg.distrib.communication.NetworkAddress;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 
 public class SkeletonInvocationHandler implements InvocationHandler{
     private final MessageManager messageManager;
@@ -50,42 +49,68 @@ public class SkeletonInvocationHandler implements InvocationHandler{
         }
     }
 
-    public void handleRequest(MethodCallMessage message) throws InvocationTargetException, IllegalAccessException {
+    public void handleRequest(MethodCallMessage message) throws Exception {
         String methodName = message.getMethodName();
-        HashSet<String> paramNames = new HashSet<>();
+        //arg0
+        //arg0.name
+        //arg0.address
+        List<String> paramNames = new ArrayList<>();
         for (String key : message.getParameters().keySet()) {
-            paramNames.add(key);
+            if (!key.startsWith("arg")){
+                throw new RuntimeException("Parameter name must start with 'arg'!");
+            }
+            if (key.contains(".")) {
+                paramNames.add(key.split("\\.")[0]);
+            } else {
+                paramNames.add(key);
+            }
         }
         Optional<Method> method = Arrays.stream(c.getClass().getDeclaredMethods()).filter(e -> e.getName().equals(methodName)).findFirst();
-        if (method.isPresent()){
-            for (Method m : c.getClass().getDeclaredMethods()) {
-                m.setAccessible(true);
-                if (m.getName().equals(methodName)){
-                    if (paramNames.size() == m.getParameterCount()){
-                        Object[] arguments = new Object[paramNames.size()];
-                        Class[] clazzes = m.getParameterTypes();
-                        for (int i = 0; i < paramNames.size(); i++) {
-                            Class clazz = clazzes[i];
-                            switch (clazz.getSimpleName()){
-                                // case ""
-                            }
+        if (method.isPresent()) {
+            if (paramNames.size() == method.get().getParameterCount()) {
+                Object[] arguments = new Object[paramNames.size()];
+                Class[] classes = method.get().getParameterTypes();
+                for (int i = 0; i < paramNames.size(); i++) {
+                    Class clazz = classes[i];
+                    switch (clazz.getSimpleName()) {
+                        case "String": {
+                            arguments[i] = message.getParameter("arg" + i);
+                            break;
                         }
-                        Object toReturn = m.invoke(c, arguments);
-                        Class clazz = m.getReturnType();
-                        MethodCallMessage reply = new MethodCallMessage(messageManager.getMyAddress(), methodName);
-                        if ("void".equals(clazz.getSimpleName())) {
-                            reply.setParameter("result", "Ok");
-                        } else if (clazz.isPrimitive() || clazz == String.class) {
-                            reply.setParameter("result", toReturn.toString());
+                        case "int": {
+                            arguments[i] = Integer.parseInt(message.getParameter("arg" + i));
+                            break;
                         }
-                        messageManager.send(reply, message.getOriginator());
-                    } else {
-                        throw new RuntimeException("Error in parameters!");
+                        case "double":{
+                            arguments[i] = Double.parseDouble(message.getParameter("arg" + i));
+                            break;
+                        }
+                        case "boolean": {
+                            arguments[i] = Boolean.parseBoolean(message.getParameter("arg" + i));
+                            break;
+                        }
+                        case "char": {
+                            arguments[i] = message.getParameter("arg" + i).charAt(0);
+                            break;
+                        }
                     }
                 }
+
+                Object toReturn = method.get().invoke(c, arguments);
+                Class clazz = method.get().getReturnType();
+                MethodCallMessage reply = new MethodCallMessage(messageManager.getMyAddress(), methodName);
+                if ("void".equals(clazz.getSimpleName())) {
+                    reply.setParameter("result", "Ok");
+                } else if (clazz.isPrimitive() || clazz == String.class) {
+                    reply.setParameter("result", toReturn.toString());
+                }
+                messageManager.send(reply, message.getOriginator());
+            } else {
+                throw new RuntimeException("Expected: ");
             }
         } else {
-            throw new RuntimeException("Method " + method.get().getName() + " doesn't exist!");
+            //Niet ok
+            throw new RuntimeException("Method not found");
         }
 
     }
