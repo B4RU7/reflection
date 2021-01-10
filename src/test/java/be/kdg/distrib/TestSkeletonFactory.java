@@ -218,7 +218,7 @@ public class TestSkeletonFactory {
         MethodCallMessage reply = messageManager.wReceive();
         assertEquals("100", reply.getParameter("result"));
     }
-/*
+
     @Test(timeout = 1000)
     public void testIntReturnValue2() {
         testImplementation.setMethod6ReturnValue(10000);
@@ -300,5 +300,5 @@ public class TestSkeletonFactory {
         assertEquals("-489", reply.getParameter("result.age"));
         assertEquals("U", reply.getParameter("result.gender"));
         assertEquals("true", reply.getParameter("result.deleted"));
-    }*/
+    }
 }
